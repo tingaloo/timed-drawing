@@ -1,0 +1,36 @@
+#id-container {
+    max-width: 4em;
+}
+
+#status {
+  font-size: 3em;
+}
+
+body {
+  background-color: grey;
+}
+
+#imgContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionButton {
+  height: 10em;
+  width: 15em;
+}
+
+
+img {
+  width: auto;
+  height: 100%;
+  /* Magic! */
+  max-height: 90vh;
+}

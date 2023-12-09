@@ -1,0 +1,18 @@
+{
+  "name": "timed-draw",
+  "version": "1.0.0",
+  "description": "An app that displays random images from local folders at timed intervals",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.0.0"
+  },
+  "dependencies": {
+    "glob": "^10.3.10"
+  }
+}

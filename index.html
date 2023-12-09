@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <title>Hello from Electron renderer!</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="consts.js"></script>
+    <script src="utils.js"></script>
+
+  </head>
+  <body>
+    <div id="imgContainer">
+      <img id="imgFrame"
+      />
+
+    </div>
+    <div id="index"></div>
+    <div id="buttonContainer">
+      <div id="status">Stopped</div>
+      <input type="file" id="filepicker" webkitdirectory multiple/>
+
+      <button id="stopButton" class="actionButton" >Stop</button>
+      <button id="startButton" class="actionButton">Start</button>
+    </div>
+    <script src="./renderer.js"></script>
+
+
+
+
+  </body>
+</html>
