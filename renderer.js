@@ -1,8 +1,9 @@
 
 
-const INTERVAL_IN_SECONDS = 3
+let INTERVAL_IN_SECONDS = 2
 let nIntervId;
 let warningInterval;
+let timerStatus = "stopped"
 
 
 const imgDiv = document.getElementById('imgFrame')
@@ -22,24 +23,36 @@ function myEventHandler(e) {
     //     prevImage();
     //     break;
 
-    //   case 37:
-    //     prevImage();
-    //     break;
-    //   case 39:
-    //     nextImage();
-    //     break;
+      case 37:
+        // left arrow
+        getPrevImage();
+        break;
+      case 39:
+        // right arrow
+        newRandomImage();
+        break;
+    case 32:
+        // space
+        toggleInterval(e);
+        break;
       case 114:
         // r
-        window.electronAPI.getNewRandomImage();
+        newRandomImage();
         break;
       default:
         
     }
   }
 
-  function intervalHandler() {
+  function newRandomImage() {
     window.electronAPI.getNewRandomImage()
   }
+
+  function getPrevImage() {
+    window.electronAPI.getPrevImage()
+
+  }
+
 
 //   function displayTimeWarning() {
 //     setTimeout(() => {
@@ -47,25 +60,40 @@ function myEventHandler(e) {
 //       }, (INTERVAL_IN_SECONDS * 1000) - 3000);
 //   }
 
-  function startInterval() {
-    if (!nIntervId) {
-      document.getElementById("status").innerText="Running!"
-    //   warningInterval = setInterval(() => displayTimeWarning(), (INTERVAL_IN_SECONDS * 1000)- 3000)
-      nIntervId= setInterval(() => intervalHandler(), INTERVAL_IN_SECONDS * 1000)
+  function toggleInterval() {
+    console.log('toggle interval')
+    if (timerStatus == "stopped") {
+        startInterval();
+    } else {
+        stopInterval();
     }
   }
 
-  function myStopFunction(e) {
+  function startInterval() {
+    console.log('start interval')
+    if (!nIntervId) {
+    //   document.getElementById("status").innerText="Running!"
+    //   warningInterval = setInterval(() => displayTimeWarning(), (INTERVAL_IN_SECONDS * 1000)- 3000)
+    document.getElementById("toggleInterval").src="assets/icons/stop.svg";
+    timerStatus = "running";
+
+      nIntervId= setInterval(() => newRandomImage(), INTERVAL_IN_SECONDS * 1000)
+    }
+  }
+
+  function stopInterval(e) {
     clearInterval(nIntervId);
     clearInterval(warningInterval);
     nIntervId = null;
     warningInterval = null;
-    document.getElementById("status").innerText="Stopped"
+    document.getElementById("toggleInterval").src="assets/icons/play.svg";
+    timerStatus="stopped";
     e.preventDefault();
   }
 
 
-  document.getElementById("stopButton").addEventListener("click", myStopFunction);
-  document.getElementById("startButton").addEventListener("click", startInterval);
-  window.addEventListener("keypress", myEventHandler, false);
+  document.getElementById("toggleInterval").addEventListener("click", toggleInterval);
+  document.getElementById("nextImage").addEventListener("click", newRandomImage);
+  document.getElementById("prevImage").addEventListener("click", getPrevImage);
+
   window.addEventListener("keydown", myEventHandler, false);

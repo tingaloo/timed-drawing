@@ -2,14 +2,12 @@ const { app, protocol, net, BrowserWindow, dialog, shell, ipcMain } = require('e
 const path = require('path')
 let mainWindow;
 let imgArr = [];
+let prevImgIdx = 0;
+let currentImgIdx = 0;
+let historyArr = [];
 
-const testFolder = './assets/';
-const fs = require('fs');
 const {
     glob,
-    globSync,
-    globStream,
-    globStreamSync,
     Glob,
   } = require('glob')
 
@@ -20,7 +18,7 @@ const {
   }
  
    async function getImages() {
-    const images = await glob("**/*.jpg")
+    const images = await glob("**/*.jpg", { ignore: 'assets/icons/**' })
     return images;
   }
 
@@ -28,9 +26,10 @@ const {
     imgArr =await getImages();
   }
 
-
-  async function getRandomImageSrc() {
-    let randomImageSrc = imgArr[getRandomInt(0, imgArr.length-1)]
+// getRandomImageFilePath returns a filepath from a random jpeg file in the assets/images folder
+  async function getRandomImageFilePath() {
+    let randomIdx = getRandomInt(0, imgArr.length-1)
+    let randomImageSrc = imgArr[randomIdx]
 
     return randomImageSrc;
 }
@@ -47,14 +46,22 @@ function createWindow(){
       transparent:true,
       frame: false,
       opacity: 0,
-      show: false
+      show: false,
+      alwaysOnTop: true
     }
     })
 
     ipcMain.on('get-random-img', async () => {
-        let randomImgSrc = await getRandomImageSrc();
-        mainWindow.webContents.send('update-img', randomImgSrc)
+         handleNextImage();
+
       })
+
+      ipcMain.on('get-prev-img', async () => {
+        console.log('prev img invoked')
+        handlePrevImage();
+      })
+
+
 
     mainWindow.loadFile('index.html');
 }
@@ -66,15 +73,45 @@ app.whenReady().then(() => {
       mainWindow.show();
     })
 
-    
 
   mainWindow.webContents.on('did-finish-load', async function () {
+    console.log('load once')
     await setImagesLocally();
-    let j = await getRandomImageSrc();
-    mainWindow.webContents.send('update-img',j)
+    handleNextImage();
 });
 
   })
+
+  //handleNextImage will return a random image if we are at the end of the historyArr. If currPosition = historyArr.length-1
+  // if not, then it will 
+async function handleNextImage() {
+    // if end of historyArr, get random img
+    if (currentImgIdx >= historyArr.length-1) {
+        let j = await getRandomImageFilePath();
+        historyArr.push(j)
+        if (historyArr.length != 1) {
+            currentImgIdx++;
+        }
+        mainWindow.webContents.send('update-img',j)
+    } else {
+        let nextImgSrc = historyArr[currentImgIdx+1];
+        currentImgIdx++;
+        mainWindow.webContents.send('update-img',nextImgSrc)
+
+    }
+
+}
+function handlePrevImage() {
+    let newIndex = currentImgIdx-1;
+    let prevImgSrc = historyArr[newIndex];
+
+    if (newIndex < 0) {
+        return;
+    }
+    currentImgIdx = newIndex;
+    mainWindow.webContents.send('update-img', prevImgSrc)
+
+}
 
 //   ipcMain.on('select-dirs', async (event, arg) => {
 //     const result = await dialog.showOpenDialog(mainWindow, {
