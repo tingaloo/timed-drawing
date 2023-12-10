@@ -5,6 +5,8 @@ let imgArr = [];
 let prevImgIdx = 0;
 let currentImgIdx = 0;
 let historyArr = [];
+let favoritesArr = [];
+const IMG_FILE_TYPES = "jpg,png,jpeg"
 
 const {
     glob,
@@ -17,8 +19,9 @@ const {
     return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
   }
  
+
    async function getImages() {
-    const images = await glob("**/*.jpg", { ignore: 'assets/icons/**' })
+    const images = await glob(`**/*.{${IMG_FILE_TYPES}}`, { ignore: 'assets/icons/**' })
     return images;
   }
 
@@ -57,7 +60,6 @@ function createWindow(){
       })
 
       ipcMain.on('get-prev-img', async () => {
-        console.log('prev img invoked')
         handlePrevImage();
       })
 
@@ -75,7 +77,6 @@ app.whenReady().then(() => {
 
 
   mainWindow.webContents.on('did-finish-load', async function () {
-    console.log('load once')
     await setImagesLocally();
     handleNextImage();
 });
@@ -86,6 +87,8 @@ app.whenReady().then(() => {
   // if not, then it will 
 async function handleNextImage() {
     // if end of historyArr, get random img
+    // 0  -1
+    // init status
     if (currentImgIdx >= historyArr.length-1) {
         let j = await getRandomImageFilePath();
         historyArr.push(j)
@@ -101,6 +104,7 @@ async function handleNextImage() {
     }
 
 }
+
 function handlePrevImage() {
     let newIndex = currentImgIdx-1;
     let prevImgSrc = historyArr[newIndex];
