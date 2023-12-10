@@ -20,12 +20,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 4em;
 }
 
-.actionButton {
-  height: 10em;
-  width: 15em;
+.toolbarContainer {
+    position: absolute;
 }
+
+.toolbarItem {
+    height: 2em;
+    width:auto;
+}
+
+/* img:hover {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  } */
+
 
 
 img {
