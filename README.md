@@ -16,7 +16,7 @@ This will be the most involved since it will involved timeouts and intervals.
 2. Warning Timer
 3. History Pane
 4. Tagging feature? Standing sitting poses.
-5. Add favorites and write to a local file maybe copy favorite files to a favorites folder?
+[x] Add favorites and write to a local file maybe copy favorite files to a favorites folder?
 6. If no assets/images is present, display file explorer and prompt for folder path
 
 

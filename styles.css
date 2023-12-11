@@ -30,6 +30,9 @@ body {
 .toolbarItem {
     height: 2em;
     width:auto;
+    &:hover {
+      cursor: pointer;
+    }
 }
 
 /* img:hover {

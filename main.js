@@ -74,7 +74,7 @@ const {
   }
 
 // getRandomImageFilePath returns a filepath from a random jpeg file in the assets/images folder
-  async function getRandomImageFilePath() {
+ function getRandomImageFilePath() {
     let randomIdx = getRandomInt(0, imgArr.length-1)
     let randomImageSrc = imgArr[randomIdx]
     return randomImageSrc;
@@ -157,9 +157,11 @@ app.whenReady().then(() => {
 async function handleNextImage() {
     // if end of historyArr, get random img
     // 0  -1
-    // init status
-    if (currentImgIdx >= historyArr.length-1) {
-        let j = await getRandomImageFilePath();
+    let j = getRandomImageFilePath();
+
+    // base case, no repeating images
+    if (!historyArr.includes( j)) {
+      if (currentImgIdx >= historyArr.length-1) {
         historyArr.push(j)
         if (historyArr.length != 1) {
             currentImgIdx++;
@@ -171,6 +173,11 @@ async function handleNextImage() {
         mainWindow.webContents.send('update-img',nextImgSrc)
 
     }
+    return;
+    }
+    handleNextImage();
+    // init status
+
 
 }
 
