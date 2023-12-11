@@ -1,39 +1,82 @@
 const { app, protocol, net, BrowserWindow, dialog, shell, ipcMain } = require('electron')
-const path = require('path')
+const path = require('path');
+const fs = require('fs');
+const CONSTS = require('./consts')
+const prompt = require('electron-prompt');
+
+
 let mainWindow;
 let imgArr = [];
 let prevImgIdx = 0;
 let currentImgIdx = 0;
 let historyArr = [];
 let favoritesArr = [];
-const IMG_FILE_TYPES = "jpg,png,jpeg"
+let directory = CONSTS.USER_DEFINED_LIBRARY;
 
 const {
     glob,
     Glob,
   } = require('glob')
 
+
+
+
+  function addFileToFavorites() {
+    let filename = historyArr[currentImgIdx];
+
+    fs.writeFile('favorites.txt', `${filename}\r\n`, { flag: "a+" }, (err) => {
+      if (err) throw err;
+      console.log('The file is created if not existing!!');
+    }); 
+  }
+
   function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
   }
+
+  async function getPrompt() {
+    
+   const interval = await prompt({
+      title: 'Set Interval',
+      label: 'Type in Interval in seconds',
+      value: 'http://example.org',
+      inputAttrs: {
+          type: 'number'
+      },
+      alwaysOnTop: true,
+      type: 'input'
+  })
+  .then( (r) => {
+      if(r === null) {
+          console.log('user cancelled');
+      } else {
+        return  r;
+      }
+  })
+  .catch(console.error);
+
+  return interval;
+
+  }
+
  
 
-   async function getImages() {
-    const images = await glob(`**/*.{${IMG_FILE_TYPES}}`, { ignore: 'assets/icons/**' })
+   async function getImages(directory) {
+    const images = await glob(`${directory}/**/*.{${CONSTS.IMG_FILE_TYPES}}`, { ignore: CONSTS.EXCLUSION_PATTERN })
     return images;
   }
 
   async function setImagesLocally() {
-    imgArr =await getImages();
+    imgArr =await getImages(directory)
+    return imgArr;
   }
 
 // getRandomImageFilePath returns a filepath from a random jpeg file in the assets/images folder
   async function getRandomImageFilePath() {
     let randomIdx = getRandomInt(0, imgArr.length-1)
     let randomImageSrc = imgArr[randomIdx]
-
     return randomImageSrc;
 }
 
@@ -50,22 +93,46 @@ function createWindow(){
       frame: false,
       opacity: 0,
       show: false,
-      alwaysOnTop: true
+      alwaysOnTop: false
     }
     })
 
     ipcMain.on('get-random-img', async () => {
          handleNextImage();
-
       })
 
       ipcMain.on('get-prev-img', async () => {
         handlePrevImage();
       })
 
+      ipcMain.on('favorite-img', async () => {
+        addFileToFavorites();
+      })
+
+      ipcMain.on('open-directory', async () => {
+        dialog.showOpenDialog(mainWindow, {
+          properties: ['openFile', 'openDirectory']
+        }).then(result => {
+          resetToDefault();
+
+          console.log(result.canceled)
+          console.log(result.filePaths)
+          directory = result.filePaths;
+          setImagesLocally().then(() => handleNextImage());
+
+        }).catch(err => {
+          console.log(err)
+        })      })
+
 
 
     mainWindow.loadFile('index.html');
+}
+
+function resetToDefault() {
+  historyArr = [];
+  currentImgIdx = 0;
+  directory = CONSTS.USER_DEFINED_LIBRARY;
 }
 
 
@@ -80,6 +147,8 @@ app.whenReady().then(() => {
     await setImagesLocally();
     handleNextImage();
 });
+  ipcMain.handle('set-interval', getPrompt)
+
 
   })
 
@@ -116,18 +185,4 @@ function handlePrevImage() {
     mainWindow.webContents.send('update-img', prevImgSrc)
 
 }
-
-//   ipcMain.on('select-dirs', async (event, arg) => {
-//     const result = await dialog.showOpenDialog(mainWindow, {
-//       properties: ['openDirectory', 'multiSelections'],
-//       filters: [
-//         { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
-//       ]
-//     })
-//     console.log('directories selected', result.filePaths)
-//   })
-
-
-  
-
 

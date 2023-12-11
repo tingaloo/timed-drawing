@@ -53,6 +53,16 @@ function myEventHandler(e) {
 
   }
 
+  function favoriteImage() {
+    window.electronAPI.favoriteImage();
+  }
+
+  function openDirectory() {
+    window.electronAPI.openDirectory();
+  }
+
+
+
 
 //   function displayTimeWarning() {
 //     setTimeout(() => {
@@ -95,5 +105,21 @@ function myEventHandler(e) {
   document.getElementById("toggleInterval").addEventListener("click", toggleInterval);
   document.getElementById("nextImage").addEventListener("click", newRandomImage);
   document.getElementById("prevImage").addEventListener("click", getPrevImage);
+  document.getElementById("favoriteImage").addEventListener("click", favoriteImage);
+  document.getElementById("openDirectory").addEventListener("click", openDirectory);
+  document.getElementById("setInterval").addEventListener("click",   async() => {
+    console.log('open interval prompt')
+    const interval = await window.electronAPI.setInterval();
+    if (interval == undefined) {
+      console.log('return early')
+      return;
+    }
+    console.log('get here')
+    INTERVAL_IN_SECONDS=interval;
+    stopInterval();
+    // startInterval();
+  });
+
+
 
   window.addEventListener("keydown", myEventHandler, false);
