@@ -12,6 +12,7 @@ let currentImgIdx = 0;
 let historyArr = [];
 let favoritesArr = [];
 let directory = CONSTS.USER_DEFINED_LIBRARY;
+let alwaysOnTop = true;
 
 const {
     glob,
@@ -24,10 +25,12 @@ const {
   function addFileToFavorites() {
     let filename = historyArr[currentImgIdx];
 
-    fs.writeFile('favorites.txt', `${filename}\r\n`, { flag: "a+" }, (err) => {
-      if (err) throw err;
-      console.log('The file is created if not existing!!');
-    }); 
+    // fs.writeFile('favorites.txt', `${filename}\r\n`, { flag: "a+" }, (err) => {
+    //   if (err) throw err;
+    //   console.log('The file is created if not existing!!');
+    // }); 
+    // console.log(filename)
+    shell.showItemInFolder(filename)
   }
 
   function getRandomInt(min, max) {
@@ -93,13 +96,21 @@ function createWindow(){
       frame: false,
       opacity: 0,
       show: false,
-      alwaysOnTop: false
+      alwaysOnTop: true
     }
     })
 
-    ipcMain.on('get-random-img', async () => {
-         handleNextImage();
+
+
+
+    ipcMain.on('toggle-always-on-top', async () => {
+         toggleAlwaysOnTop();
       })
+
+      ipcMain.on('get-random-img', async () => {
+        handleNextImage();
+     })
+
 
       ipcMain.on('get-prev-img', async () => {
         handlePrevImage();
@@ -114,11 +125,22 @@ function createWindow(){
           properties: ['openFile', 'openDirectory']
         }).then(result => {
           resetToDefault();
+          // if (fs.stat(result).isDirectory()) {
+          //   console.log('directory!')
+          // }
+          // console.log(result)
 
-          console.log(result.canceled)
-          console.log(result.filePaths)
           directory = result.filePaths;
-          setImagesLocally().then(() => handleNextImage());
+          console.log(directory)
+          // console.log(, 'isdirectyry' )
+          if (!fs.lstatSync(directory[0]).isDirectory()) {
+            mainWindow.webContents.send('update-img',directory[0])
+
+          } else {
+            setImagesLocally().then(() => handleNextImage());
+
+          }
+
 
         }).catch(err => {
           console.log(err)
@@ -140,6 +162,10 @@ app.whenReady().then(() => {
     createWindow()
     mainWindow.once('ready-to-show', () => {
       mainWindow.show();
+      if (alwaysOnTop) {
+        mainWindow.setAlwaysOnTop(true, "screen-saver");
+  
+      }
     })
 
 
@@ -151,6 +177,18 @@ app.whenReady().then(() => {
 
 
   })
+
+
+  // toggleAlwaysOnTop will be invoked from the clientside. 
+  async function toggleAlwaysOnTop() {
+    if (alwaysOnTop) {
+      mainWindow.setAlwaysOnTop(false);
+      alwaysOnTop = false;
+    } else {
+      mainWindow.setAlwaysOnTop(true, 'screen-saver')
+      alwaysOnTop = true;
+    }
+  }
 
   //handleNextImage will return a random image if we are at the end of the historyArr. If currPosition = historyArr.length-1
   // if not, then it will 

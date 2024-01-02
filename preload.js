@@ -7,7 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPrevImage: ()=>  ipcRenderer.send('get-prev-img'),
   favoriteImage: () => ipcRenderer.send('favorite-img'),
   openDirectory: () => ipcRenderer.send('open-directory'),
-  setInterval: () => ipcRenderer.invoke('set-interval')
+  setInterval: () => ipcRenderer.invoke('set-interval'),
+  toggleAlwaysOnTop: () => ipcRenderer.send('toggle-always-on-top')
 
 })
 

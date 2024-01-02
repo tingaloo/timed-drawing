@@ -61,6 +61,11 @@ function myEventHandler(e) {
     window.electronAPI.openDirectory();
   }
 
+  function toggleAlwaysOnTop () {
+    console.log('toggling')
+    window.electronAPI.toggleAlwaysOnTop();
+
+  }
 
 
 
@@ -78,6 +83,8 @@ function myEventHandler(e) {
         stopInterval();
     }
   }
+
+
 
   function startInterval() {
     console.log('start interval')
@@ -107,6 +114,8 @@ function myEventHandler(e) {
   document.getElementById("prevImage").addEventListener("click", getPrevImage);
   document.getElementById("favoriteImage").addEventListener("click", favoriteImage);
   document.getElementById("openDirectory").addEventListener("click", openDirectory);
+  document.getElementById("toggleAlwaysOnTop").addEventListener("click", toggleAlwaysOnTop);
+
   document.getElementById("setInterval").addEventListener("click",   async() => {
     console.log('open interval prompt')
     const interval = await window.electronAPI.setInterval();
